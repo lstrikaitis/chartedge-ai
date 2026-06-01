@@ -172,7 +172,7 @@
     <button onclick="showPage('landing')">Home</button>
     <button onclick="showPage('landing'); scrollToSection('pricing-section')">Pricing</button>
     <button onclick="showPage('paywall')">Subscribe</button>
-    <button class="btn btn-primary" onclick="showPage('analysis')" id="analyzeNavBtn" style="display:none">Analyze Chart</button>
+    <button class="btn btn-primary" onclick="showPage('analysis')" id="analyzeNavBtn">Analyze Chart</button>
     <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
   </div>
 </nav>
@@ -395,27 +395,39 @@ function formatExp(input) {
   input.value = v;
 }
 
-function processPayment() {
+async function processPayment() { 
   const email = document.getElementById('pay-email').value;
-  const card = document.getElementById('card-num').value;
-  if (!email || !card || card.replace(/\s/g,'').length < 16) {
-    alert('Please fill in all payment details.');
+  if (!email) {
+    alert('Please enter your email address.');
     return;
   }
-  currentPlan = selectedPlan;
   const btn = document.querySelector('.btn-primary[onclick="processPayment()"]');
-  btn.textContent = '⏳ Processing...';
+  btn.textContent = '⏳ Redirecting to checkout...';
   btn.disabled = true;
-  setTimeout(() => {
-    document.getElementById('analyzeNavBtn').style.display = 'flex';
-    document.getElementById('usage-text').textContent = currentPlan === 'pro'
-      ? 'Pro Plan · Unlimited analyses'
-      : 'Basic Plan · 10 analyses remaining';
-    alert('✅ Payment successful! Welcome to ChartEdge AI ' + (currentPlan === 'pro' ? 'Pro' : 'Basic') + '!');
-    showPage('analysis');
+
+  const priceId = selectedPlan === 'pro'
+    ? 'price_1TdQfWCcxGZuvgSKGZKhZKhn'
+    : 'price_1TdQecCcxGZuvgSKzNLvhYVV';
+
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId, email })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Something went wrong. Please try again.');
+      btn.textContent = 'Subscribe Now';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
     btn.textContent = 'Subscribe Now';
     btn.disabled = false;
-  }, 1500);
+  }
 }
 
 function handleFile(event) {
