@@ -503,6 +503,9 @@ Provide a comprehensive trading analysis in this EXACT JSON format (respond with
     });
 
     const data = await response.json();
+    if (!data.content) {
+      throw new Error((data.error && (data.error.message || data.error)) || 'No result returned — check your Anthropic API key and account credits.');
+    }
     const raw = data.content.map(i => i.text || '').join('');
     const clean = raw.replace(/```json|```/g, '').trim();
     const r = JSON.parse(clean);
