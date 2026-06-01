@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ChartEdge AI</title>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e2a;
+    --card: #1e2230;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f2f7;
+    --muted: #8892a4;
+    --green: #00d97e;
+    --red: #ff4d4d;
+    --accent: #3b82f6;
+    --accent2: #6366f1;
+  }
+  .light {
+    --bg: #f4f6fa;
+    --bg2: #ffffff;
+    --bg3: #eef1f7;
+    --card: #ffffff;
+    --border: rgba(0,0,0,0.09);
+    --text: #0d0f14;
+    --muted: #5a6478;
+    --green: #00a85a;
+    --red: #e03030;
+    --accent: #2563eb;
+    --accent2: #4f46e5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; transition: background 0.3s, color 0.3s; }
+  a { color: inherit; text-decoration: none; }
+
+  /* NAV */
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--bg2); position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 1.25rem; font-weight: 700; background: linear-gradient(90deg, var(--accent), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links button { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; transition: color 0.2s; }
+  .nav-links button:hover { color: var(--text); }
+  .btn { padding: 0.5rem 1.2rem; border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-weight: 600; transition: all 0.2s; border: none; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: var(--bg3); }
+  .theme-toggle { background: var(--bg3); border: 1px solid var(--border); color: var(--text); border-radius: 20px; padding: 0.3rem 0.8rem; cursor: pointer; font-size: 0.85rem; }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 5rem 2rem 4rem; max-width: 800px; margin: 0 auto; }
+  .badge { display: inline-block; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: var(--accent); padding: 0.3rem 0.9rem; border-radius: 20px; font-size: 0.8rem; margin-bottom: 1.5rem; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.15; margin-bottom: 1.2rem; }
+  .hero h1 span { background: linear-gradient(90deg, var(--accent), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { font-size: 1.1rem; color: var(--muted); max-width: 560px; margin: 0 auto 2rem; line-height: 1.7; }
+  .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-big { padding: 0.85rem 2rem; font-size: 1rem; border-radius: 10px; }
+
+  /* HOW IT WORKS */
+  .section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-title { text-align: center; font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .section-sub { text-align: center; color: var(--muted); margin-bottom: 3rem; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+  .step { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; text-align: center; }
+  .step-num { width: 44px; height: 44px; border-radius: 50%; background: rgba(59,130,246,0.15); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; margin: 0 auto 1rem; }
+  .step h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .step p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  /* MARKETS */
+  .markets { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin-bottom: 3rem; }
+  .market-tag { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 0.4rem 1rem; font-size: 0.85rem; color: var(--muted); }
+
+  /* PRICING */
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; max-width: 700px; margin: 0 auto; }
+  .plan { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; position: relative; }
+  .plan.featured { border-color: var(--accent); }
+  .plan-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.9rem; border-radius: 20px; white-space: nowrap; }
+  .plan-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .plan-price { font-size: 2.2rem; font-weight: 800; margin: 1rem 0 0.25rem; }
+  .plan-price span { font-size: 1rem; font-weight: 400; color: var(--muted); }
+  .plan-desc { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+  .plan-features { list-style: none; margin-bottom: 1.5rem; }
+  .plan-features li { font-size: 0.875rem; padding: 0.4rem 0; display: flex; gap: 0.5rem; align-items: flex-start; color: var(--muted); }
+  .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+  .plan .btn { width: 100%; padding: 0.75rem; font-size: 0.95rem; }
+
+  /* DISCLAIMER */
+  .disclaimer { background: rgba(255,180,0,0.07); border: 1px solid rgba(255,180,0,0.2); border-radius: 12px; padding: 1rem 1.5rem; margin: 2rem auto; max-width: 800px; font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+  .disclaimer strong { color: #f59e0b; }
+
+  /* PAYWALL PAGE */
+  .paywall-wrap { max-width: 480px; margin: 4rem auto; padding: 0 1.5rem; text-align: center; }
+  .paywall-wrap h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .paywall-wrap p { color: var(--muted); margin-bottom: 2rem; }
+  .plan-select { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+  .plan-opt { background: var(--card); border: 2px solid var(--border); border-radius: 14px; padding: 1.25rem; cursor: pointer; transition: all 0.2s; text-align: left; }
+  .plan-opt.selected { border-color: var(--accent); background: rgba(59,130,246,0.06); }
+  .plan-opt .opt-name { font-weight: 700; font-size: 0.95rem; }
+  .plan-opt .opt-price { font-size: 1.4rem; font-weight: 800; margin: 0.3rem 0; }
+  .plan-opt .opt-desc { font-size: 0.75rem; color: var(--muted); }
+  .payment-form { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; text-align: left; }
+  .payment-form label { font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 0.35rem; margin-top: 1rem; }
+  .payment-form label:first-child { margin-top: 0; }
+  .payment-form input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.9rem; color: var(--text); font-size: 0.9rem; outline: none; transition: border 0.2s; }
+  .payment-form input:focus { border-color: var(--accent); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .secure-note { font-size: 0.77rem; color: var(--muted); text-align: center; margin-bottom: 1rem; }
+
+  /* ANALYSIS PAGE */
+  .analysis-wrap { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .analysis-wrap h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .analysis-wrap .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+  .upload-area { border: 2px dashed var(--border); border-radius: 16px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--card); margin-bottom: 1.5rem; position: relative; }
+  .upload-area:hover, .upload-area.dragover { border-color: var(--accent); background: rgba(59,130,246,0.04); }
+  .upload-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .upload-area h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .upload-area p { font-size: 0.85rem; color: var(--muted); }
+  .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .preview-img { max-width: 100%; border-radius: 12px; margin-bottom: 1rem; display: block; border: 1px solid var(--border); }
+  .market-select-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center; }
+  .market-select-row label { font-size: 0.85rem; color: var(--muted); }
+  .market-select-row select { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.8rem; color: var(--text); font-size: 0.875rem; outline: none; cursor: pointer; }
+  .btn-analyze { width: 100%; padding: 0.9rem; font-size: 1rem; font-weight: 700; border-radius: 12px; background: linear-gradient(90deg, var(--accent), var(--accent2)); color: #fff; border: none; cursor: pointer; transition: opacity 0.2s, transform 0.2s; }
+  .btn-analyze:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* RESULTS */
+  .result-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-top: 2rem; }
+  .signal-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.4rem; border-radius: 30px; font-size: 1.4rem; font-weight: 800; margin-bottom: 1.5rem; }
+  .signal-long { background: rgba(0,217,126,0.12); color: var(--green); border: 2px solid rgba(0,217,126,0.3); }
+  .signal-short { background: rgba(255,77,77,0.12); color: var(--red); border: 2px solid rgba(255,77,77,0.3); }
+  .signal-neutral { background: rgba(255,180,0,0.12); color: #f59e0b; border: 2px solid rgba(255,180,0,0.3); }
+  .confidence-bar-wrap { margin-bottom: 1.5rem; }
+  .confidence-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; display: flex; justify-content: space-between; }
+  .confidence-bar { height: 8px; border-radius: 10px; background: var(--bg3); overflow: hidden; }
+  .confidence-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--accent), var(--green)); transition: width 1s ease; }
+  .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .result-metric { background: var(--bg3); border-radius: 12px; padding: 1rem; }
+  .result-metric .rm-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.3rem; }
+  .result-metric .rm-val { font-size: 1.15rem; font-weight: 700; }
+  .rm-val.green { color: var(--green); }
+  .rm-val.red { color: var(--red); }
+  .result-section { margin-bottom: 1.25rem; }
+  .result-section h4 { font-size: 0.9rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; }
+  .result-section p { font-size: 0.9rem; line-height: 1.7; }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tag { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: var(--accent); padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.8rem; }
+  .loading-overlay { text-align: center; padding: 3rem; }
+  .spinner { width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-overlay p { color: var(--muted); font-size: 0.9rem; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: 0.82rem; margin-top: 4rem; }
+  footer a { color: var(--accent); }
+
+  /* USAGE COUNTER */
+  .usage-bar { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 0.6rem 1rem; font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem; }
+  .usage-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">ChartEdge AI</div>
+  <div class="nav-links">
+    <button onclick="showPage('landing')">Home</button>
+    <button onclick="showPage('landing'); scrollToSection('pricing-section')">Pricing</button>
+    <button onclick="showPage('paywall')">Subscribe</button>
+    <button class="btn btn-primary" onclick="showPage('analysis')" id="analyzeNavBtn" style="display:none">Analyze Chart</button>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+  </div>
+</nav>
+
+<!-- LANDING PAGE -->
+<div id="page-landing" class="page active">
+  <div class="hero">
+    <div class="badge">✦ AI-Powered Chart Analysis</div>
+    <h1>Know exactly when to go<br><span>Long or Short</span></h1>
+    <p>Upload any chart screenshot — stocks, crypto, forex, or commodities — and get an instant AI-powered trading analysis with clear entry, stop loss, and take profit levels.</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary btn-big" onclick="showPage('paywall')">Start Analyzing — $19.99/mo</button>
+      <button class="btn btn-outline btn-big" onclick="scrollToSection('how-it-works')">See How It Works</button>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>⚠ Risk Disclaimer:</strong> ChartEdge AI provides analysis for educational and informational purposes only. This is not financial advice. Trading involves substantial risk of loss. Past patterns do not guarantee future results. Always do your own research and consult a licensed financial advisor before making any trading decisions.
+  </div>
+
+  <div class="section" id="how-it-works">
+    <div class="section-title">How It Works</div>
+    <div class="section-sub">Three simple steps to a professional chart analysis</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h3>Subscribe</h3><p>Choose your plan and get instant access to the AI analysis tool.</p></div>
+      <div class="step"><div class="step-num">2</div><h3>Upload Your Chart</h3><p>Take a screenshot of any chart and upload it. Supports all timeframes and assets.</p></div>
+      <div class="step"><div class="step-num">3</div><h3>Get Your Signal</h3><p>Receive a detailed Long/Short/Neutral recommendation with entry, SL & TP levels.</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">All Markets Covered</div>
+    <div class="section-sub">Analyze any asset class with the same powerful AI</div>
+    <div class="markets">
+      <span class="market-tag">📈 Stocks</span>
+      <span class="market-tag">₿ Crypto</span>
+      <span class="market-tag">💱 Forex</span>
+      <span class="market-tag">🛢 Commodities</span>
+      <span class="market-tag">📊 Indices</span>
+      <span class="market-tag">🏦 ETFs</span>
+    </div>
+  </div>
+
+  <div class="section" id="pricing-section">
+    <div class="section-title">Simple, Transparent Pricing</div>
+    <div class="section-sub">No hidden fees. Cancel anytime.</div>
+    <div class="pricing-grid">
+      <div class="plan">
+        <div class="plan-name">Basic</div>
+        <div class="plan-price">$19.99<span>/month</span></div>
+        <div class="plan-desc">For occasional traders</div>
+        <ul class="plan-features">
+          <li>10 chart analyses per month</li>
+          <li>Long/Short/Neutral signal</li>
+          <li>Entry, SL & TP levels</li>
+          <li>Pattern & indicator detection</li>
+          <li>All markets supported</li>
+        </ul>
+        <button class="btn btn-outline" onclick="showPaywall('basic')">Get Basic</button>
+      </div>
+      <div class="plan featured">
+        <div class="plan-badge">Most Popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">$39.99<span>/month</span></div>
+        <div class="plan-desc">For active traders</div>
+        <ul class="plan-features">
+          <li>Unlimited chart analyses</li>
+          <li>Long/Short/Neutral signal</li>
+          <li>Entry, SL & TP levels</li>
+          <li>Full pattern breakdown</li>
+          <li>All markets supported</li>
+          <li>Priority AI processing</li>
+          <li>Analysis history</li>
+        </ul>
+        <button class="btn btn-primary" onclick="showPaywall('pro')">Get Pro</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 ChartEdge AI. For informational purposes only. Not financial advice.<br>
+    <a href="#">Terms of Service</a> · <a href="#">Privacy Policy</a> · <a href="#">Contact</a>
+  </footer>
+</div>
+
+<!-- PAYWALL PAGE -->
+<div id="page-paywall" class="page">
+  <div class="paywall-wrap">
+    <h2>Choose Your Plan</h2>
+    <p>Unlock AI-powered chart analysis. Cancel anytime.</p>
+    <div class="plan-select">
+      <div class="plan-opt selected" id="opt-basic" onclick="selectPlan('basic')">
+        <div class="opt-name">Basic</div>
+        <div class="opt-price">$19.99<span style="font-size:0.85rem;font-weight:400;color:var(--muted)">/mo</span></div>
+        <div class="opt-desc">10 analyses/month</div>
+      </div>
+      <div class="plan-opt" id="opt-pro" onclick="selectPlan('pro')">
+        <div class="opt-name">Pro ⭐</div>
+        <div class="opt-price">$39.99<span style="font-size:0.85rem;font-weight:400;color:var(--muted)">/mo</span></div>
+        <div class="opt-desc">Unlimited analyses</div>
+      </div>
+    </div>
+    <div class="payment-form">
+      <label>Email address</label>
+      <input type="email" placeholder="trader@email.com" id="pay-email"/>
+      <label>Card number</label>
+      <input type="text" placeholder="1234 5678 9012 3456" maxlength="19" id="card-num" oninput="formatCard(this)"/>
+      <div class="row2">
+        <div>
+          <label>Expiry</label>
+          <input type="text" placeholder="MM/YY" maxlength="5" id="card-exp" oninput="formatExp(this)"/>
+        </div>
+        <div>
+          <label>CVV</label>
+          <input type="text" placeholder="123" maxlength="3" id="card-cvv"/>
+        </div>
+      </div>
+    </div>
+    <div class="secure-note">🔒 Secured with 256-bit SSL encryption · Powered by Stripe</div>
+    <button class="btn btn-primary btn-big" style="width:100%;margin-bottom:1rem" onclick="processPayment()">Subscribe Now</button>
+    <button class="btn btn-outline" style="width:100%" onclick="showPage('landing')">← Back</button>
+    <div class="disclaimer" style="margin-top:1.5rem;text-align:left">
+      <strong>⚠ Risk Disclaimer:</strong> By subscribing you acknowledge that ChartEdge AI provides educational analysis only, not financial advice. Trading involves risk of loss.
+    </div>
+  </div>
+</div>
+
+<!-- ANALYSIS PAGE -->
+<div id="page-analysis" class="page">
+  <div class="analysis-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:2rem">
+      <div>
+        <h2>Analyze Your Chart</h2>
+        <div class="sub">Upload a screenshot and let AI detect the best trading opportunity</div>
+      </div>
+      <div class="usage-bar" id="usage-display">
+        <span class="usage-dot"></span>
+        <span id="usage-text">Basic Plan · 10 analyses remaining</span>
+      </div>
+    </div>
+
+    <div class="upload-area" id="upload-area">
+      <input type="file" accept="image/*" onchange="handleFile(event)"/>
+      <div class="upload-icon">📊</div>
+      <h3>Drop your chart screenshot here</h3>
+      <p>or click to browse · PNG, JPG, WEBP supported</p>
+    </div>
+
+    <div id="preview-wrap" style="display:none">
+      <img id="preview-img" class="preview-img" src="" alt="Chart preview"/>
+    </div>
+
+    <div class="market-select-row">
+      <label>Market type:</label>
+      <select id="market-type">
+        <option value="crypto">Cryptocurrency</option>
+        <option value="stocks">Stocks</option>
+        <option value="forex">Forex</option>
+        <option value="commodities">Commodities</option>
+        <option value="indices">Indices</option>
+        <option value="other">Other</option>
+      </select>
+      <label>Timeframe:</label>
+      <select id="timeframe">
+        <option>1m</option><option>5m</option><option>15m</option><option>1h</option>
+        <option selected>4h</option><option>1D</option><option>1W</option>
+      </select>
+    </div>
+
+    <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()" disabled>🔍 Analyze Chart</button>
+
+    <div id="result-area"></div>
+  </div>
+</div>
+
+<script>
+let currentPlan = 'basic';
+let selectedPlan = 'basic';
+let uploadedImageData = null;
+let isDark = true;
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showPaywall(plan) {
+  selectedPlan = plan;
+  selectPlan(plan);
+  showPage('paywall');
+}
+
+function scrollToSection(id) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }, 50);
+}
+
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.querySelector('.theme-toggle').textContent = isDark ? '🌙 Dark' : '☀️ Light';
+}
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.getElementById('opt-basic').classList.toggle('selected', plan === 'basic');
+  document.getElementById('opt-pro').classList.toggle('selected', plan === 'pro');
+}
+
+function formatCard(input) {
+  let v = input.value.replace(/\D/g, '').substring(0, 16);
+  input.value = v.replace(/(.{4})/g, '$1 ').trim();
+}
+function formatExp(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
+  input.value = v;
+}
+
+function processPayment() {
+  const email = document.getElementById('pay-email').value;
+  const card = document.getElementById('card-num').value;
+  if (!email || !card || card.replace(/\s/g,'').length < 16) {
+    alert('Please fill in all payment details.');
+    return;
+  }
+  currentPlan = selectedPlan;
+  const btn = document.querySelector('.btn-primary[onclick="processPayment()"]');
+  btn.textContent = '⏳ Processing...';
+  btn.disabled = true;
+  setTimeout(() => {
+    document.getElementById('analyzeNavBtn').style.display = 'flex';
+    document.getElementById('usage-text').textContent = currentPlan === 'pro'
+      ? 'Pro Plan · Unlimited analyses'
+      : 'Basic Plan · 10 analyses remaining';
+    alert('✅ Payment successful! Welcome to ChartEdge AI ' + (currentPlan === 'pro' ? 'Pro' : 'Basic') + '!');
+    showPage('analysis');
+    btn.textContent = 'Subscribe Now';
+    btn.disabled = false;
+  }, 1500);
+}
+
+function handleFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    uploadedImageData = e.target.result;
+    document.getElementById('preview-img').src = uploadedImageData;
+    document.getElementById('preview-wrap').style.display = 'block';
+    document.getElementById('upload-area').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = false;
+    document.getElementById('result-area').innerHTML = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+const uploadArea = document.getElementById('upload-area');
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      uploadedImageData = ev.target.result;
+      document.getElementById('preview-img').src = uploadedImageData;
+      document.getElementById('preview-wrap').style.display = 'block';
+      uploadArea.style.display = 'none';
+      document.getElementById('analyzeBtn').disabled = false;
+      document.getElementById('result-area').innerHTML = '';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+async function runAnalysis() {
+  const market = document.getElementById('market-type').value;
+  const tf = document.getElementById('timeframe').value;
+  const resultArea = document.getElementById('result-area');
+  const btn = document.getElementById('analyzeBtn');
+
+  btn.disabled = true;
+  resultArea.innerHTML = `<div class="loading-overlay"><div class="spinner"></div><p>AI is analyzing your chart...<br>Detecting patterns, indicators & signals</p></div>`;
+
+  const base64 = uploadedImageData.split(',')[1];
+  const mediaType = uploadedImageData.split(';')[0].split(':')[1];
+
+  const prompt = `You are ChartEdge AI, an expert technical analyst. Analyze this ${market} chart on the ${tf} timeframe.
+
+Provide a comprehensive trading analysis in this EXACT JSON format (respond with JSON only, no markdown):
+{
+  "signal": "LONG" or "SHORT" or "NEUTRAL",
+  "confidence": number between 0 and 100,
+  "entry": "price or zone description",
+  "stopLoss": "price or zone description",
+  "takeProfit": "price or zone description",
+  "riskReward": "ratio like 1:2.5",
+  "patterns": ["pattern1", "pattern2"],
+  "indicators": ["indicator observation 1", "indicator observation 2"],
+  "summary": "2-3 sentence analysis summary explaining the reasoning behind the signal",
+  "keyLevels": "description of key support/resistance levels observed",
+  "trend": "UPTREND" or "DOWNTREND" or "SIDEWAYS"
+}`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const raw = data.content.map(i => i.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const r = JSON.parse(clean);
+
+    const signalClass = r.signal === 'LONG' ? 'signal-long' : r.signal === 'SHORT' ? 'signal-short' : 'signal-neutral';
+    const signalEmoji = r.signal === 'LONG' ? '📈' : r.signal === 'SHORT' ? '📉' : '⚖️';
+
+    resultArea.innerHTML = `
+    <div class="result-card">
+      <div class="signal-badge ${signalClass}">${signalEmoji} ${r.signal}</div>
+      <div class="confidence-bar-wrap">
+        <div class="confidence-label"><span>Confidence Level</span><span>${r.confidence}%</span></div>
+        <div class="confidence-bar"><div class="confidence-fill" style="width:${r.confidence}%"></div></div>
+      </div>
+      <div class="result-grid">
+        <div class="result-metric"><div class="rm-label">Entry Zone</div><div class="rm-val">${r.entry}</div></div>
+        <div class="result-metric"><div class="rm-label">Stop Loss</div><div class="rm-val red">${r.stopLoss}</div></div>
+        <div class="result-metric"><div class="rm-label">Take Profit</div><div class="rm-val green">${r.takeProfit}</div></div>
+        <div class="result-metric"><div class="rm-label">Risk/Reward</div><div class="rm-val">${r.riskReward}</div></div>
+      </div>
+      <div class="result-section">
+        <h4>Analysis Summary</h4>
+        <p>${r.summary}</p>
+      </div>
+      <div class="result-section">
+        <h4>Trend</h4>
+        <p>${r.trend} — ${r.keyLevels}</p>
+      </div>
+      <div class="result-section">
+        <h4>Detected Patterns</h4>
+        <div class="tag-list">${r.patterns.map(p => `<span class="tag">${p}</span>`).join('')}</div>
+      </div>
+      <div class="result-section">
+        <h4>Indicator Signals</h4>
+        <div class="tag-list">${r.indicators.map(i => `<span class="tag">${i}</span>`).join('')}</div>
+      </div>
+      <div class="disclaimer" style="margin:1rem 0 0">
+        <strong>⚠ Disclaimer:</strong> This analysis is for educational purposes only. Not financial advice. Always manage your risk and do your own research.
+      </div>
+      <button class="btn btn-outline" style="margin-top:1rem;width:100%" onclick="resetAnalysis()">Analyze Another Chart</button>
+    </div>`;
+
+  } catch (err) {
+    resultArea.innerHTML = `<div class="result-card" style="text-align:center;padding:2rem">
+      <p style="color:var(--red);margin-bottom:1rem">⚠️ Analysis failed. Please try again.</p>
+      <p style="color:var(--muted);font-size:0.85rem">${err.message}</p>
+      <button class="btn btn-outline" style="margin-top:1rem" onclick="resetAnalysis()">Try Again</button>
+    </div>`;
+  }
+  btn.disabled = false;
+}
+
+function resetAnalysis() {
+  uploadedImageData = null;
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('upload-area').style.display = 'block';
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('result-area').innerHTML = '';
+}
+</script>
+</body>
+</html>
